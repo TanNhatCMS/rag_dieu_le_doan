@@ -25,7 +25,7 @@ from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageCon
 
 # Load biến môi trường
 load_dotenv()
-os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+google_api_key = st.secrets["google"]["api_key"]
 model_name = "models/gemini-2.0-flash"
 
 if not os.environ.get("GOOGLE_API_KEY"):
@@ -40,7 +40,7 @@ TTL = 24 * 60 * 60
 @st.cache_data(ttl=TTL, show_spinner="Đang khởi tạo")
 def load_embed_model_gemini():
     from llama_index.llms.google_genai import GoogleGenAI
-    return GoogleGenAI(model=model_name, api_key=os.environ["GOOGLE_API_KEY"])
+    return GoogleGenAI(model=model_name, api_key=google_api_key)
 @st.cache_data(ttl=TTL, show_spinner="Đang khởi tạo")
 def load_embed_model():
     from llama_index.embeddings.huggingface import HuggingFaceEmbedding
