@@ -28,7 +28,7 @@ load_dotenv()
 google_api_key = st.secrets["google"]["api_key"]
 model_name = "models/gemini-2.0-flash"
 
-if not os.environ.get("GOOGLE_API_KEY"):
+if not google_api_key:
     st.error("❌ Chưa có GOOGLE_API_KEY trong .env! Hãy tạo file .env và thêm khóa.")
     st.stop()
 # Cấu hình thư mục
