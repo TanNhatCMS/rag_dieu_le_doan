@@ -37,11 +37,11 @@ PERSIST_DIR = "doan_index_storage"
 TTL = 24 * 60 * 60
 
 # === Dùng cache để tránh reload model mỗi lần Streamlit refresh ===
-@st.cache_resource(ttl=TTL, show_spinner="Đang khởi tạo")
+#@st.cache_resource(ttl=TTL, show_spinner="Đang khởi tạo")
 def load_embed_model_gemini():
     from llama_index.llms.google_genai import GoogleGenAI
     return GoogleGenAI(model=model_name, api_key=google_api_key)
-@st.cache_resource(ttl=TTL, show_spinner="Đang khởi tạo")
+#@st.cache_resource(ttl=TTL, show_spinner="Đang khởi tạo")
 def load_embed_model():
     from llama_index.embeddings.huggingface import HuggingFaceEmbedding
     return HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
