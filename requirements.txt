@@ -1,0 +1,10 @@
+llama-index
+llama-index-llms-gemini
+google-generativeai
+llama-index-embeddings-huggingface
+llama-index-llms-google-genai
+streamlit
+python-dotenv
+torch
+torchvision
+torchaudio
