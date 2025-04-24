@@ -1,4 +1,4 @@
-llama-index~=0.12.33
+llama-index~=0.12.32
 llama-index-core~=0.12.34a1
 llama-index-llms-google-genai~=0.1.7
 llama-index-embeddings-huggingface~=0.5.3
