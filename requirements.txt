@@ -3,8 +3,6 @@ llama-index-llms-gemini
 google-generativeai
 llama-index-embeddings-huggingface
 llama-index-llms-google-genai
+huggingface_hub[hf_xet]
 streamlit
 python-dotenv
-torch
-torchvision
-torchaudio
