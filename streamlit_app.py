@@ -16,7 +16,6 @@ st.set_page_config(
     page_icon="https://quanlydoanvien.doanthanhnien.vn/favicon.ico",
     layout="wide"
 )
-st.title("📘 Tra cứu Điều lệ Đoàn TNCS Hồ Chí Minh")
 
 # Tránh lỗi lazy loader của PyTorch khi dùng với Streamlit
 os.environ["PYTORCH_NO_LAZY_LOADER"] = "1"
@@ -24,15 +23,30 @@ os.environ["PYTORCH_NO_LAZY_LOADER"] = "1"
 from llama_index.core import Settings, PromptTemplate
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageContext, load_index_from_storage
 
-# Load biến môi trường
-google_api_key = st.secrets["google"]["api_key"]
-model_name = "gemini-2.0-flash"
-os.environ["GOOGLE_API_KEY"]=google_api_key
 # Cấu hình thư mục
 DATA_DIR = "data"
 PERSIST_DIR = "index_storage"
 TTL = 24 * 60 * 60
-
+# Replicate Credentials
+with st.sidebar:
+    st.title("📘 Tra cứu Điều lệ Đoàn TNCS Hồ Chí Minh")
+    st.write('Chatbot hỗ trợ bởi Gemini.')
+    if 'google' in st.secrets:
+        st.success('Khóa API đã được cung cấp!', icon='✅')
+        google_api_key = st.secrets["google"]["api_key"]
+    else:
+        google_api_key = st.text_input('Nhập Google API token:', type='password')
+        if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
+            st.warning('Vui lòng nhập thông tin đăng nhập của bạn!', icon='⚠️')
+        else:
+            st.success('Tiến hành nhập tin nhắn nhắc nhở của bạn!', icon='👉')
+    os.environ['GOOGLE_API_KEY'] = google_api_key
+    st.subheader('Mô hình và thông số')
+    selected_model = st.sidebar.selectbox('Chọn mẫu Gemini', ['Gemini 2.0 Flash', 'Gemini 2.0 Flash (Image Generation) Experimental'], key='selected_model')
+    if selected_model == 'Gemini 2.0 Flash':
+        model_name = 'gemini-2.0-flash'
+    elif selected_model == 'Gemini 2.0 Flash (Image Generation) Experimental':
+        model_name = 'gemini-2.0-flash-exp-image-generation'
 # === Tải model từ HuggingFace Hub về local ===
 def download_model_to_local(repo_id: str, local_dir: str = "models") -> None:
     from huggingface_hub import snapshot_download
@@ -101,21 +115,40 @@ def ask_gemini_directly(question):
     except Exception as e:
         return f"❌ Đã xảy ra lỗi khi hỏi Gemini: {e}"
 
-query = st.text_input("Nhập câu hỏi:", placeholder="Ví dụ: Quyền của đoàn viên", key="query_input")
-submit = st.button("🧠 Trả lời")
-if submit:
-    if not query.strip():
-        st.warning("⚠️ Vui lòng nhập câu hỏi trước khi nhấn nút.")
-    else:
-        with st.spinner("🔍 Đang tìm câu trả lời..."):
-            response = query_engine.query(query)
-            answer = response.response.strip()
+# === Chat UI ===
+st.header("💬 Trò chuyện với AI Điều lệ Đoàn")
 
+# Store LLM generated responses
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+        {"role": "assistant", "content": "Chào bạn! Tôi có thể hỗ trợ gì về Điều lệ Đoàn TNCS Hồ Chí Minh?"}
+    ]
+
+# Hiển thị lịch sử chat
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+def clear_chat_history():
+    st.session_state.messages = [{"role": "assistant", "content": "Chào bạn! Tôi có thể hỗ trợ gì về Điều lệ Đoàn TNCS Hồ Chí Minh?"}]
+st.sidebar.button('Xóa lịch sử trò chuyện', on_click=clear_chat_history)
+
+# Nhận đầu vào từ người dùng
+if prompt := st.chat_input("Nhập câu hỏi của bạn..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        with st.spinner("🔍 Đang tìm câu trả lời..."):
+            response = query_engine.query(prompt)
+            answer = response.response.strip()
             if len(answer) < 30:
+                fallback = ask_gemini_directly(prompt)
                 st.markdown("🌐 **Không đủ dữ liệu nội bộ, đang hỏi Gemini với tìm kiếm mở rộng...**")
-                fallback = ask_gemini_directly(query)
                 st.markdown(fallback)
+                st.session_state.messages.append({"role": "assistant", "content": fallback})
             else:
                 st.markdown("✅ **Trả lời từ Điều lệ Đoàn:**")
                 st.markdown(answer)
-
+                st.session_state.messages.append({"role": "assistant", "content": answer})
