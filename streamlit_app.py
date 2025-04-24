@@ -50,7 +50,7 @@ def load_embed_model_gemini():
 def load_embed_model():
     from llama_index.embeddings.huggingface import HuggingFaceEmbedding
     # download_model_to_local(repo_id="sentence-transformers/all-MiniLM-L6-v2")
-    return HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    return HuggingFaceEmbedding(model_name="all-MiniLM-L6-v2")
 
 embed_model = load_embed_model()
 llm = load_embed_model_gemini()
