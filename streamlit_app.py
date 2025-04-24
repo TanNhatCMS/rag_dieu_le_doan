@@ -45,9 +45,8 @@ def download_model_to_local(repo_id: str, local_dir: str = "models") -> None:
 # === Dùng cache để tránh reload model mỗi lần Streamlit refresh ===
 @st.cache_data(ttl=TTL, show_spinner="Đang khởi tạo GoogleGenAI")
 def load_embed_model_gemini():
-    from google import genai
-    client = genai.Client(api_key=google_api_key)
-    return client.chats.create(model=model_name)
+    from llama_index.llms.google_genai import GoogleGenAI
+    return GoogleGenAI(model=model_name, api_key=google_api_key)
 
 @st.cache_data(ttl=TTL, show_spinner="Đang tải mô hình local từ HuggingFace")
 def load_embed_model():
@@ -102,14 +101,18 @@ def ask_gemini_directly(question):
 query = st.text_input("Nhập câu hỏi:", placeholder="Ví dụ: Quyền của đoàn viên là gì?", key="query_input")
 submit = st.button("🧠 Trả lời") or (query and st.session_state.query_input)
 if submit:
-    with st.spinner("🔍 Đang tìm câu trả lời..."):
-        response = query_engine.query(query)
-        answer = response.response.strip()
+    # check query non empty
+    if not query:
+        st.warning("⚠️ Vui lòng nhập câu hỏi trước khi nhấn nút.")
+    else:
+        with st.spinner("🔍 Đang tìm câu trả lời..."):
+            response = query_engine.query(query)
+            answer = response.response.strip()
 
-        if len(answer) < 30:
-            st.markdown("🌐 **Không đủ dữ liệu nội bộ, đang hỏi Gemini với tìm kiếm mở rộng...**")
-            fallback = ask_gemini_directly(query)
-            st.markdown(fallback)
-        else:
-            st.markdown("✅ **Trả lời từ Điều lệ Đoàn:**")
-            st.markdown(answer)
+            if len(answer) < 30:
+                st.markdown("🌐 **Không đủ dữ liệu nội bộ, đang hỏi Gemini với tìm kiếm mở rộng...**")
+                fallback = ask_gemini_directly(query)
+                st.markdown(fallback)
+            else:
+                st.markdown("✅ **Trả lời từ Điều lệ Đoàn:**")
+                st.markdown(answer)
