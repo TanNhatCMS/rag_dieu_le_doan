@@ -101,11 +101,10 @@ def ask_gemini_directly(question):
     except Exception as e:
         return f"❌ Đã xảy ra lỗi khi hỏi Gemini: {e}"
 
-query = st.text_input("Nhập câu hỏi:", placeholder="Ví dụ: Quyền của đoàn viên là gì?", key="query_input")
-submit = st.button("🧠 Trả lời") or (query and st.session_state.query_input)
+query = st.text_input("Nhập câu hỏi:", placeholder="Ví dụ: Quyền của đoàn viên", key="query_input")
+submit = st.button("🧠 Trả lời")
 if submit:
-    # check query non empty
-    if not query:
+    if not query.strip():
         st.warning("⚠️ Vui lòng nhập câu hỏi trước khi nhấn nút.")
     else:
         with st.spinner("🔍 Đang tìm câu trả lời..."):
@@ -119,3 +118,4 @@ if submit:
             else:
                 st.markdown("✅ **Trả lời từ Điều lệ Đoàn:**")
                 st.markdown(answer)
+
