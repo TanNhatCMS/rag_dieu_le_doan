@@ -2,6 +2,7 @@ llama-index~=0.12.33
 llama-index-core~=0.12.34a1
 llama-index-llms-google-genai~=0.1.7
 llama-index-embeddings-huggingface~=0.5.3
+llama-index-embeddings-google-genai
 google-genai
 streamlit~=1.44.1
 tqdm~=4.67.1
@@ -10,4 +11,3 @@ python-dotenv~=1.1.0
 huggingface_hub[hf_xet]
 sentence-transformers~=4.1.0
 transformers
-torch~=2.6.0
