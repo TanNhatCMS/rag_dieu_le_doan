@@ -8,15 +8,16 @@
 #     asyncio.set_event_loop(loop)
 import os
 import streamlit as st
+from dotenv import load_dotenv
+load_dotenv()
 # === Giao diện Streamlit ===
 st.set_page_config(
     page_title="Tra cứu Điều lệ Đoàn",
     page_icon="https://quanlydoanvien.doanthanhnien.vn/favicon.ico",
-    layout="wide"  # <== Bật chế độ wide mode
+    layout="wide"
 )
 st.title("📘 Tra cứu Điều lệ Đoàn TNCS Hồ Chí Minh")
 
-from dotenv import load_dotenv
 # Tránh lỗi lazy loader của PyTorch khi dùng với Streamlit
 os.environ["PYTORCH_NO_LAZY_LOADER"] = "1"
 
@@ -24,27 +25,31 @@ from llama_index.core import Settings, PromptTemplate
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageContext, load_index_from_storage
 
 # Load biến môi trường
-load_dotenv()
 google_api_key = st.secrets["google"]["api_key"]
-model_name = "models/gemini-2.0-flash"
+model_name = "gemini-2.0-flash"
 
-if not google_api_key:
-    st.error("❌ Chưa có GOOGLE_API_KEY trong .env! Hãy tạo file .env và thêm khóa.")
-    st.stop()
 # Cấu hình thư mục
 DATA_DIR = "data"
 PERSIST_DIR = "index_storage"
 TTL = 24 * 60 * 60
+
+# === Tải model từ HuggingFace Hub về local ===
+def download_model_to_local(repo_id: str, local_dir: str = "models") -> None:
+    from huggingface_hub import snapshot_download
+    os.makedirs(local_dir, exist_ok=True)
+    snapshot_download(repo_id=repo_id, local_dir=local_dir, local_dir_use_symlinks=False)
 
 # === Dùng cache để tránh reload model mỗi lần Streamlit refresh ===
 @st.cache_data(ttl=TTL, show_spinner="Đang khởi tạo GoogleGenAI")
 def load_embed_model_gemini():
     from llama_index.llms.google_genai import GoogleGenAI
     return GoogleGenAI(model=model_name, api_key=google_api_key)
-@st.cache_data(ttl=TTL, show_spinner="Đang khởi tạo HuggingFace")
+
+@st.cache_data(ttl=TTL, show_spinner="Đang tải mô hình local từ HuggingFace")
 def load_embed_model():
     from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-    return HuggingFaceEmbedding(model_name="all-MiniLM-L6-v2")
+    # download_model_to_local(repo_id="sentence-transformers/all-MiniLM-L6-v2")
+    return HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
 
 embed_model = load_embed_model()
 llm = load_embed_model_gemini()
@@ -73,7 +78,7 @@ QA_PROMPT_TMPL = (
     "Trả lời các câu hỏi dưới đây một cách chi tiết, chính xác và sử dụng ngôn ngữ pháp lý. "
     "Nếu có thể, hãy trích dẫn cụ thể các điều, khoản trong Điều lệ Đoàn. "
     "Nếu câu hỏi vượt quá phạm vi tài liệu, bạn có thể tìm kiếm thêm từ các nguồn uy tín. "
-    "Câu hỏi: {query_str}\n"
+    "\nCâu hỏi: {query_str}\n"
     "Tài liệu tham khảo:\n{context_str}\n\n"
     "Trả lời:"
 )
