@@ -2,8 +2,10 @@ llama-index~=0.12.33
 llama-index-core~=0.12.34a1
 llama-index-llms-google-genai~=0.1.7
 llama-index-embeddings-huggingface~=0.5.3
-google-generativeai~=0.8.5
-google-ai-generativelanguage~=0.6.17
+
+google-generativeai>=0.8.6a0
+google-ai-generativelanguage>=0.6.17,<0.7.dev0
+
 hf_xet~=1.0.4rc0
 maturin~=1.8.3
 streamlit~=1.44.1
