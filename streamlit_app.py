@@ -1,11 +1,11 @@
-import asyncio
+# import asyncio
 
 # Đảm bảo rằng có vòng lặp sự kiện (Event Loop) khi sử dụng asyncio trong Streamlit
-try:
-    loop = asyncio.get_running_loop()
-except RuntimeError:
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+# try:
+#     loop = asyncio.get_running_loop()
+# except RuntimeError:
+#     loop = asyncio.new_event_loop()
+#     asyncio.set_event_loop(loop)
 import os
 import streamlit as st
 # === Giao diện Streamlit ===
@@ -37,14 +37,14 @@ PERSIST_DIR = "doan_index_storage"
 TTL = 24 * 60 * 60
 
 # === Dùng cache để tránh reload model mỗi lần Streamlit refresh ===
-#@st.cache_resource(ttl=TTL, show_spinner="Đang khởi tạo")
+@st.cache_data(ttl=TTL, show_spinner="Đang khởi tạo GoogleGenAI")
 def load_embed_model_gemini():
     from llama_index.llms.google_genai import GoogleGenAI
     return GoogleGenAI(model=model_name, api_key=google_api_key)
-#@st.cache_resource(ttl=TTL, show_spinner="Đang khởi tạo")
+@st.cache_data(ttl=TTL, show_spinner="Đang khởi tạo HuggingFace")
 def load_embed_model():
     from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-    return HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+    return HuggingFaceEmbedding(model_name="all-MiniLM-L6-v2")
 
 embed_model = load_embed_model()
 llm = load_embed_model_gemini()
@@ -53,7 +53,7 @@ Settings.llm = llm
 Settings.embed_model = embed_model
 
 # Khởi tạo hoặc nạp chỉ mục
-@st.cache_data(ttl=TTL, show_spinner="Đang khởi tạo")
+@st.cache_data(ttl=TTL, show_spinner="Đang khởi tạo dữ liệu")
 def setup_index():
     if os.path.exists(os.path.join(PERSIST_DIR, "docstore.json")):
         print("🔁 Đang tải lại chỉ mục từ bộ nhớ...")
@@ -63,9 +63,9 @@ def setup_index():
         print("🛠️ Đang tạo mới chỉ mục...")
         reader = SimpleDirectoryReader(input_dir=DATA_DIR)
         documents = reader.load_data()
-        index = VectorStoreIndex.from_documents(documents)
-        index.storage_context.persist(persist_dir=PERSIST_DIR)
-        return index
+        vsi = VectorStoreIndex.from_documents(documents)
+        vsi.storage_context.persist(persist_dir=PERSIST_DIR)
+        return vsi
 
 # === TẠO PROMPT TÙY CHỈNH ===
 QA_PROMPT_TMPL = (
@@ -93,7 +93,7 @@ def ask_gemini_directly(question):
 query = st.text_input("Nhập câu hỏi:", placeholder="Ví dụ: Quyền của đoàn viên là gì?", key="query_input")
 submit = st.button("🧠 Trả lời") or (query and st.session_state.query_input)
 if submit:
-    with st.spinner("🔍 Đang tìm câu trả lời từ Điều lệ..."):
+    with st.spinner("🔍 Đang tìm câu trả lời..."):
         response = query_engine.query(query)
         answer = response.response.strip()
 
