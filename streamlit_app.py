@@ -6,6 +6,9 @@
 # except RuntimeError:
 #     loop = asyncio.new_event_loop()
 #     asyncio.set_event_loop(loop)
+import torch
+print("torch.cuda.is_available: ")
+print(torch.cuda.is_available())
 import os
 import streamlit as st
 from dotenv import load_dotenv
@@ -49,7 +52,7 @@ def load_embed_model_gemini():
 @st.cache_data(ttl=TTL, show_spinner="Đang tải mô hình local từ HuggingFace")
 def load_embed_model():
     from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-    # download_model_to_local(repo_id="sentence-transformers/all-MiniLM-L6-v2")
+    download_model_to_local(repo_id="sentence-transformers/all-MiniLM-L6-v2")
     return HuggingFaceEmbedding(model_name="all-MiniLM-L6-v2")
 
 embed_model = load_embed_model()
