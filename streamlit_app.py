@@ -42,8 +42,9 @@ def download_model_to_local(repo_id: str, local_dir: str = "models") -> None:
 # === Dùng cache để tránh reload model mỗi lần Streamlit refresh ===
 @st.cache_data(ttl=TTL, show_spinner="Đang khởi tạo GoogleGenAI")
 def load_embed_model_gemini():
-    from llama_index.llms.google_genai import GoogleGenAI
-    return GoogleGenAI(model=model_name, api_key=google_api_key)
+    from google import genai
+    client = genai.Client(api_key=google_api_key)
+    return client.chats.create(model=model_name)
 
 @st.cache_data(ttl=TTL, show_spinner="Đang tải mô hình local từ HuggingFace")
 def load_embed_model():
