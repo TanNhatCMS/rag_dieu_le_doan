@@ -32,8 +32,8 @@ if not google_api_key:
     st.error("❌ Chưa có GOOGLE_API_KEY trong .env! Hãy tạo file .env và thêm khóa.")
     st.stop()
 # Cấu hình thư mục
-DATA_DIR = "data_dieu_le_doan"
-PERSIST_DIR = "doan_index_storage"
+DATA_DIR = "data"
+PERSIST_DIR = "index_storage"
 TTL = 24 * 60 * 60
 
 # === Dùng cache để tránh reload model mỗi lần Streamlit refresh ===
