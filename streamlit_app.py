@@ -6,9 +6,6 @@
 # except RuntimeError:
 #     loop = asyncio.new_event_loop()
 #     asyncio.set_event_loop(loop)
-import torch
-print("torch.cuda.is_available: ")
-print(torch.cuda.is_available())
 import os
 import streamlit as st
 from dotenv import load_dotenv
@@ -30,7 +27,7 @@ from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageCon
 # Load biến môi trường
 google_api_key = st.secrets["google"]["api_key"]
 model_name = "gemini-2.0-flash"
-
+os.environ["GOOGLE_API_KEY"]=google_api_key
 # Cấu hình thư mục
 DATA_DIR = "data"
 PERSIST_DIR = "index_storage"
@@ -48,11 +45,17 @@ def load_embed_model_gemini():
     from llama_index.llms.google_genai import GoogleGenAI
     return GoogleGenAI(model=model_name, api_key=google_api_key)
 
-@st.cache_data(ttl=TTL, show_spinner="Đang tải mô hình local từ HuggingFace")
+@st.cache_data(ttl=TTL, show_spinner="Đang khởi tạo Embedding")
 def load_embed_model():
     from llama_index.embeddings.huggingface import HuggingFaceEmbedding
     download_model_to_local(repo_id="sentence-transformers/all-MiniLM-L6-v2")
-    return HuggingFaceEmbedding(model_name="all-MiniLM-L6-v2")
+    return HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    # from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
+    # from google.genai.types import EmbedContentConfig
+    # return GoogleGenAIEmbedding(
+    #     model_name="text-embedding-004",
+    #     api_key=google_api_key
+    # )
 
 embed_model = load_embed_model()
 llm = load_embed_model_gemini()
