@@ -36,7 +36,7 @@ with st.sidebar:
         google_api_key = st.secrets["google"]["api_key"]
     else:
         google_api_key = st.text_input('Nhập Google API token:', type='password')
-        if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
+        if not google_api_key.startswith('AI'):
             st.warning('Vui lòng nhập thông tin đăng nhập của bạn!', icon='⚠️')
         else:
             st.success('Tiến hành nhập tin nhắn nhắc nhở của bạn!', icon='👉')
