@@ -4,7 +4,7 @@ llama-index-llms-google-genai~=0.1.7
 llama-index-embeddings-huggingface~=0.5.3
 llama-index-embeddings-google-genai
 google-genai
-streamlit~=1.44.1
+streamlit~=1.45.1
 tqdm~=4.67.1
 transformers~=4.51.3
 python-dotenv~=1.1.0
