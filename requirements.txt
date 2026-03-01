@@ -7,7 +7,7 @@ google-genai
 streamlit~=1.44.1
 tqdm~=4.67.1
 transformers~=4.51.3
-python-dotenv~=1.1.0
+python-dotenv~=1.2.2
 huggingface_hub[hf_xet]
 sentence-transformers~=4.1.0
 transformers
